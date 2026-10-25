@@ -1,0 +1,10 @@
+node_modules/
+dist/
+out/
+.angular/
+coverage/
+backend/src/generated/
+package-lock.json
+.env
+.env.*
+!.env.example
