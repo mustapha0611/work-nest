@@ -17,7 +17,7 @@ A single TypeScript version therefore creates a conflict between Angular's requi
 - Do not declare TypeScript at the repository root.
 - Document the split in the README and keep both versions visible in the root lockfile.
 
-The backend's TypeScript/Prisma combination will be verified during M1 with `prisma generate`, `tsc --noEmit`, and a production build. If Prisma 7.10.1 cannot generate or type-check under TypeScript 5.9.3, we will stop and revisit the decision before writing application code.
+The backend's TypeScript/Prisma combination will be verified during M3 (the database milestone) with `prisma generate`, `tsc --noEmit`, and a production build. If Prisma 7.10.1 cannot generate or type-check under TypeScript 5.9.3, we will stop and revisit the decision before writing data-backed features. M1 deliberately contains no Prisma schema, so generating a client there would have verified nothing about the real usage.
 
 ## Alternatives considered
 
