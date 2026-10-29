@@ -25,7 +25,19 @@ They are not API documentation. For the current system shape, read
 | [05-tooling-and-decisions.md](05-tooling-and-decisions.md) | npm workspaces, two TypeScript versions, lint configs, accepted trade-offs |
 | [06-exercises.md](06-exercises.md)                         | Reversible experiments and review questions                                |
 
+## Code example style
+
+**Balanced.** Notes are written after a milestone is implemented and verified, and examples follow
+these rules:
+
+- Annotated snippets for every non-obvious decision: types, ordering, library choice, error paths.
+- Straightforward code is linked by file path instead of pasted.
+- Where it helps, show the naive version, what breaks, then the corrected version.
+- Include a test snippet when it encodes behaviour that is easy to regress.
+- Show commands with their expected output so verification is reproducible.
+- No whole-file dumps. The repository is the source of truth for complete code.
+
 ## Scope
 
-M1 (toolchain skeleton) as of 2026-10-29. Notes are added per milestone rather than written up
-front; anything not yet implemented is described as a gap, not as a feature.
+M1 (toolchain skeleton) as of 2026-10-29. Notes are added per milestone rather than written
+up front; anything not yet implemented is described as a gap, not as a feature.
