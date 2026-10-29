@@ -95,6 +95,7 @@ docs/                   Architecture, API conventions, design system, ADRs
 - [API conventions](docs/api-conventions.md)
 - [Design system](docs/design-system.md)
 - [Decision records](docs/decisions/)
+- [Learning notes](docs/learning/README.md) — why the code is shaped this way, plus exercises
 
 ## Roadmap
 
