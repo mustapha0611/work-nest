@@ -1,0 +1,30 @@
+/*
+ * Global styles for the shell only.
+ * Design tokens and shared primitives are introduced in M2; these literal
+ * values are temporary scaffolding, not the design system.
+ */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #f9fafb;
+  color: #111827;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
