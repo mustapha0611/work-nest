@@ -112,6 +112,7 @@ permissions — is mapped in [orchestration.md](orchestration.md). The executabl
 - PostgreSQL and Prisma versions: [ADR 0003](decisions/0003-postgresql-and-prisma-versions.md)
 - One branch per concern: [ADR 0004](decisions/0004-branch-per-concern.md)
 - Projects and tasks are never hard-deleted: [ADR 0005](decisions/0005-no-hard-deletes.md)
+- Accounts are deactivated, not deleted: [ADR 0006](decisions/0006-user-deactivation.md)
 
 ## Decisions still open
 
