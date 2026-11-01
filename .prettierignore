@@ -5,6 +5,8 @@ out/
 .angular/
 coverage/
 backend/src/generated/
+# Prisma schemas are formatted by `prisma format`, which Prettier cannot parse.
+backend/prisma/*.prisma
 package-lock.json
 .env
 .env.*

@@ -13,6 +13,15 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().min(1).max(65535).default(3000),
   LOG_LEVEL: z.enum(LOG_LEVELS).default('info'),
   APP_ORIGIN: z.url().default('http://localhost:4200'),
+  /**
+   * PostgreSQL connection string. The default matches the Docker Compose
+   * service and the local-only credentials in `.env.example`, so a fresh clone
+   * can start the API against `docker compose up -d` without editing anything.
+   * Production must override it.
+   */
+  DATABASE_URL: z
+    .url()
+    .default('postgresql://worknest:worknest_dev_only@localhost:5432/worknest?schema=public'),
 });
 
 export type Env = z.infer<typeof envSchema>;
