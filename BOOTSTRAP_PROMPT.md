@@ -5,6 +5,7 @@ Read `AGENTS.md`, `PROJECT_BRIEF.md`, this file, and the applicable skills under
 I want to build WorkNest: a learning-first team project and task management platform using Angular + TypeScript, Node.js + Express + TypeScript, PostgreSQL, and Prisma. I need to understand the code, not just receive generated output.
 
 ## Before making changes
+
 1. Inspect the actual repository, Git status, current files, package manifests, installed/runtime versions, and existing instructions. If this starter folder is not yet an application repository, say so.
 2. Identify which instructions and skills you found and any missing or conflicting instructions.
 3. Propose a practical monorepo layout with `frontend/` and `backend/`.
