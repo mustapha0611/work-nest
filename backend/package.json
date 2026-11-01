@@ -15,7 +15,8 @@
     "test:watch": "vitest",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
-    "db:deploy": "prisma migrate deploy"
+    "db:deploy": "prisma migrate deploy",
+    "test:db": "vitest run --config vitest.config.db.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.1",

@@ -1,6 +1,7 @@
 import { createApp } from './app.js';
 import { loadEnv } from './config/env.js';
 import { createLogger } from './lib/logger.js';
+import { disconnectPrismaClient } from './lib/prisma.js';
 
 const SHUTDOWN_TIMEOUT_MS = 10_000;
 
@@ -43,7 +44,16 @@ function start(): void {
         process.exit(1);
       }
 
-      process.exit(0);
+      // Release the database pool before exiting, so PostgreSQL is not left
+      // holding connections from a process that no longer exists.
+      void disconnectPrismaClient()
+        .catch((disconnectError: unknown) => {
+          logger.error('Failed to close the database connection', {
+            error:
+              disconnectError instanceof Error ? disconnectError.message : String(disconnectError),
+          });
+        })
+        .finally(() => process.exit(0));
     });
 
     // Do not hang forever if a request never completes.
