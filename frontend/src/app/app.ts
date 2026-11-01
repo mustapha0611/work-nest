@@ -1,16 +1,22 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { HealthService, type ApiHealth } from './core/health/health.service';
+import { Badge } from './shared/ui/badge/badge';
+import { Button } from './shared/ui/button/button';
+
+type FailureKind = 'unreachable' | 'server';
 
 type HealthState =
   | { readonly status: 'loading' }
   | { readonly status: 'ready'; readonly health: ApiHealth }
-  | { readonly status: 'failed'; readonly message: string };
+  | { readonly status: 'failed'; readonly kind: FailureKind; readonly message: string };
 
 @Component({
-  selector: 'app-root',
+  selector: 'wn-root',
+  imports: [Badge, Button],
   templateUrl: './app.html',
   styleUrl: './app.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {
   private readonly healthService = inject(HealthService);
@@ -22,6 +28,15 @@ export class App {
   protected readonly health = computed(() => {
     const state = this.state();
     return state.status === 'ready' ? state.health : null;
+  });
+
+  protected readonly failureBadge = computed(() => {
+    const state = this.state();
+    if (state.status !== 'failed') {
+      return null;
+    }
+
+    return state.kind === 'unreachable' ? 'API unreachable' : 'API error';
   });
 
   protected readonly failureMessage = computed(() => {
@@ -40,15 +55,21 @@ export class App {
     this.healthService.getHealth().subscribe({
       next: (health) => this.state.set({ status: 'ready', health }),
       error: (error: unknown) =>
-        this.state.set({ status: 'failed', message: describeHealthError(error) }),
+        this.state.set({ status: 'failed', ...describeHealthError(error) }),
     });
   }
 }
 
-function describeHealthError(error: unknown): string {
+function describeHealthError(error: unknown): { kind: FailureKind; message: string } {
   if (error instanceof HttpErrorResponse && error.status === 0) {
-    return 'The API is unreachable. Start the backend on port 3000 and try again.';
+    return {
+      kind: 'unreachable',
+      message: 'Start the backend on port 3000 and try again.',
+    };
   }
 
-  return 'The API responded with an unexpected error.';
+  return {
+    kind: 'server',
+    message: 'The API responded with an unexpected error.',
+  };
 }

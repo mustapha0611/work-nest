@@ -1,0 +1,37 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wn-space-1);
+  min-height: 1.5rem;
+  padding-inline: var(--wn-space-2);
+  border-radius: var(--wn-radius-full);
+  font-size: var(--wn-text-xs);
+  font-weight: var(--wn-font-medium);
+  line-height: var(--wn-leading-xs);
+  white-space: nowrap;
+}
+
+:host([data-tone='neutral']) {
+  background: var(--wn-color-neutral-bg);
+  color: var(--wn-color-neutral-fg);
+}
+
+:host([data-tone='info']) {
+  background: var(--wn-color-info-bg);
+  color: var(--wn-color-info-fg);
+}
+
+:host([data-tone='success']) {
+  background: var(--wn-color-success-bg);
+  color: var(--wn-color-success-fg);
+}
+
+:host([data-tone='warning']) {
+  background: var(--wn-color-warning-bg);
+  color: var(--wn-color-warning-fg);
+}
+
+:host([data-tone='danger']) {
+  background: var(--wn-color-danger-bg);
+  color: var(--wn-color-danger-fg);
+}

@@ -1,0 +1,166 @@
+/*
+ * WorkNest design tokens — "Botanical Ink"
+ *
+ * Two layers:
+ *   1. Primitive tokens describe what a colour or step IS (teal-700, space-4).
+ *   2. Semantic tokens describe what it MEANS (primary, text-muted, danger).
+ *
+ * Components must only use semantic tokens. That is what makes a rebrand or a
+ * dark theme a change to this file instead of a search across components.
+ *
+ * Contrast ratios noted below were measured with the WCAG relative-luminance
+ * formula against the light theme. Anything used as normal-size text must reach
+ * 4.5:1; borders and focus indicators must reach 3:1.
+ */
+
+:root {
+  /* --------------------------------------------------------------------------
+   * Primitive: teal (brand)
+   * ----------------------------------------------------------------------- */
+  --wn-teal-50: #eff7f5;
+  --wn-teal-100: #d7ebe6;
+  --wn-teal-300: #7fbdb2;
+  --wn-teal-500: #2f8f82;
+  --wn-teal-600: #14766b;
+  --wn-teal-700: #0f5f57;
+  --wn-teal-800: #0b4a44;
+  --wn-teal-900: #083a36;
+
+  /* --------------------------------------------------------------------------
+   * Primitive: sand (warm neutrals)
+   * ----------------------------------------------------------------------- */
+  --wn-sand-50: #faf8f4;
+  --wn-sand-100: #f2ede5;
+  --wn-sand-200: #e6ded1;
+  --wn-sand-300: #d5c9b8;
+  --wn-sand-500: #8c8377;
+  --wn-sand-600: #6e655a;
+  --wn-sand-700: #4a443d;
+  --wn-sand-900: #1f1b17;
+
+  /* --------------------------------------------------------------------------
+   * Primitive: clay (secondary accent, decorative)
+   * ----------------------------------------------------------------------- */
+  --wn-clay-50: #f7ebdf;
+  --wn-clay-500: #bc6c25;
+  --wn-clay-700: #8f4e14;
+  --wn-clay-800: #7a4210;
+
+  /* --------------------------------------------------------------------------
+   * Semantic: surfaces and text
+   * ----------------------------------------------------------------------- */
+  --wn-color-bg: var(--wn-sand-50);
+  --wn-color-surface: #ffffff;
+  --wn-color-surface-muted: var(--wn-sand-100);
+  --wn-color-text: var(--wn-sand-900); /* 17.11:1 on surface */
+  --wn-color-text-muted: var(--wn-sand-600); /* 5.72:1 on surface */
+  --wn-color-border: var(--wn-sand-200); /* decorative dividers */
+  --wn-color-border-strong: var(--wn-sand-500); /* 3.73:1, safe for inputs */
+
+  /* --------------------------------------------------------------------------
+   * Semantic: actions
+   * ----------------------------------------------------------------------- */
+  --wn-color-primary: var(--wn-teal-700); /* white text: 7.51:1 */
+  --wn-color-primary-hover: var(--wn-teal-800); /* white text: 10.11:1 */
+  --wn-color-primary-subtle: var(--wn-teal-50);
+  --wn-color-on-primary: #ffffff;
+  --wn-color-focus-ring: var(--wn-teal-500); /* 3.69:1 against the page */
+
+  /* --------------------------------------------------------------------------
+   * Semantic: accent (decorative, not a second primary)
+   * ----------------------------------------------------------------------- */
+  --wn-color-accent: var(--wn-clay-500); /* 3.95:1: large text and graphics only */
+  --wn-color-accent-text: var(--wn-clay-700); /* 6.43:1: safe for small text */
+  --wn-color-accent-subtle: var(--wn-clay-50);
+
+  /* --------------------------------------------------------------------------
+   * Semantic: status
+   * Each tone pairs a foreground with a tinted background (all >= 7:1).
+   * ----------------------------------------------------------------------- */
+  --wn-color-neutral-fg: var(--wn-sand-700);
+  --wn-color-neutral-bg: var(--wn-sand-100);
+  --wn-color-info-fg: #0c4a6e;
+  --wn-color-info-bg: #e8f1f8;
+  --wn-color-success-fg: #14532d;
+  --wn-color-success-bg: #e7f6ec;
+  --wn-color-warning-fg: #7c2d12;
+  --wn-color-warning-bg: #fdf3e3;
+  --wn-color-danger-fg: #991b1b;
+  --wn-color-danger-bg: #fdeceb;
+  --wn-color-danger: #b42318; /* solid destructive action, white text 6.57:1 */
+  --wn-color-danger-hover: #8f1d14;
+
+  /* --------------------------------------------------------------------------
+   * Typography
+   * Size and line height are separate so each can be used independently.
+   * ----------------------------------------------------------------------- */
+  --wn-font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --wn-font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+
+  --wn-text-xs: 0.75rem;
+  --wn-leading-xs: 1rem;
+  --wn-text-sm: 0.875rem;
+  --wn-leading-sm: 1.25rem;
+  --wn-text-base: 1rem;
+  --wn-leading-base: 1.5rem;
+  --wn-text-lg: 1.125rem;
+  --wn-leading-lg: 1.75rem;
+  --wn-text-xl: 1.25rem;
+  --wn-leading-xl: 1.75rem;
+  --wn-text-2xl: 1.5rem;
+  --wn-leading-2xl: 2rem;
+  --wn-text-3xl: 1.875rem;
+  --wn-leading-3xl: 2.25rem;
+
+  --wn-font-regular: 400;
+  --wn-font-medium: 500;
+  --wn-font-semibold: 600;
+  --wn-font-bold: 700;
+
+  /* --------------------------------------------------------------------------
+   * Spacing — a 4px grid
+   * ----------------------------------------------------------------------- */
+  --wn-space-1: 0.25rem;
+  --wn-space-2: 0.5rem;
+  --wn-space-3: 0.75rem;
+  --wn-space-4: 1rem;
+  --wn-space-5: 1.25rem;
+  --wn-space-6: 1.5rem;
+  --wn-space-8: 2rem;
+  --wn-space-10: 2.5rem;
+  --wn-space-12: 3rem;
+  --wn-space-16: 4rem;
+
+  /* --------------------------------------------------------------------------
+   * Radii, borders, elevation
+   * ----------------------------------------------------------------------- */
+  --wn-radius-sm: 0.375rem;
+  --wn-radius-md: 0.5rem;
+  --wn-radius-lg: 0.75rem;
+  --wn-radius-xl: 1rem;
+  --wn-radius-full: 9999px;
+
+  --wn-border-width: 1px;
+
+  --wn-shadow-xs: 0 1px 2px rgb(31 27 23 / 6%);
+  --wn-shadow-sm: 0 1px 3px rgb(31 27 23 / 8%), 0 1px 2px rgb(31 27 23 / 4%);
+  --wn-shadow-md: 0 10px 20px -8px rgb(31 27 23 / 14%), 0 2px 6px rgb(31 27 23 / 6%);
+
+  /* --------------------------------------------------------------------------
+   * Motion
+   * ----------------------------------------------------------------------- */
+  --wn-duration-fast: 120ms;
+  --wn-duration-base: 180ms;
+  --wn-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* --------------------------------------------------------------------------
+   * Breakpoints — DOCUMENTATION ONLY.
+   * CSS custom properties cannot be used inside @media queries. Media queries
+   * must use the literal values below. These tokens exist so JavaScript and
+   * documentation can reference one source of truth.
+   * ----------------------------------------------------------------------- */
+  --wn-breakpoint-sm: 640px;
+  --wn-breakpoint-md: 768px;
+  --wn-breakpoint-lg: 1024px;
+  --wn-breakpoint-xl: 1280px;
+}

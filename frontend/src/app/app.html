@@ -10,9 +10,9 @@
 
   <section class="panel" aria-live="polite">
     @if (isLoading()) {
-      <p class="status status--pending">Checking the API…</p>
+      <p class="status"><span wn-badge tone="neutral">Checking the API…</span></p>
     } @else if (health(); as health) {
-      <p class="status status--ok">API online</p>
+      <p class="status"><span wn-badge tone="success">API online</span></p>
       <dl class="facts">
         <div class="facts__row">
           <dt>Status</dt>
@@ -27,11 +27,20 @@
           <dd>{{ health.timestamp }}</dd>
         </div>
       </dl>
-    } @else if (failureMessage(); as message) {
-      <p class="status status--error">{{ message }}</p>
+    } @else if (failureBadge(); as label) {
+      <p class="status">
+        <span wn-badge tone="danger">{{ label }}</span>
+      </p>
+      <p class="status__detail">{{ failureMessage() }}</p>
     }
 
-    <button type="button" class="button" (click)="checkHealth()" [disabled]="isLoading()">
+    <button
+      wn-button
+      class="panel__action"
+      variant="secondary"
+      (click)="checkHealth()"
+      [disabled]="isLoading()"
+    >
       Check again
     </button>
   </section>

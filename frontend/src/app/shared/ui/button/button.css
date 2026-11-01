@@ -1,0 +1,86 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--wn-space-2);
+  border: var(--wn-border-width) solid transparent;
+  border-radius: var(--wn-radius-md);
+  font-family: inherit;
+  font-weight: var(--wn-font-semibold);
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--wn-duration-fast) var(--wn-ease-standard),
+    border-color var(--wn-duration-fast) var(--wn-ease-standard),
+    color var(--wn-duration-fast) var(--wn-ease-standard);
+}
+
+:host([data-size='sm']) {
+  min-height: 2rem;
+  padding-inline: var(--wn-space-3);
+  font-size: var(--wn-text-sm);
+}
+
+:host([data-size='md']) {
+  min-height: 2.5rem;
+  padding-inline: var(--wn-space-4);
+  font-size: var(--wn-text-sm);
+}
+
+/* Primary: one per view or region. The main action. */
+:host([data-variant='primary']) {
+  background: var(--wn-color-primary);
+  color: var(--wn-color-on-primary);
+}
+
+:host([data-variant='primary']:hover:not(:disabled)) {
+  background: var(--wn-color-primary-hover);
+}
+
+/* Secondary: supporting actions next to a primary. */
+:host([data-variant='secondary']) {
+  border-color: var(--wn-color-border-strong);
+  background: var(--wn-color-surface);
+  color: var(--wn-color-text);
+}
+
+:host([data-variant='secondary']:hover:not(:disabled)) {
+  background: var(--wn-color-surface-muted);
+}
+
+/* Ghost: low-emphasis actions in dense UI (toolbars, rows). */
+:host([data-variant='ghost']) {
+  background: transparent;
+  color: var(--wn-color-primary);
+}
+
+:host([data-variant='ghost']:hover:not(:disabled)) {
+  background: var(--wn-color-primary-subtle);
+}
+
+/* Danger: destructive, always paired with a confirmation step. */
+:host([data-variant='danger']) {
+  background: var(--wn-color-danger);
+  color: #ffffff;
+}
+
+:host([data-variant='danger']:hover:not(:disabled)) {
+  background: var(--wn-color-danger-hover);
+}
+
+:host(:disabled) {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+:host(:focus-visible) {
+  outline: 2px solid var(--wn-color-focus-ring);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host {
+    transition: none;
+  }
+}
