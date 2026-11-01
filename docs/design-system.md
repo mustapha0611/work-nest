@@ -2,7 +2,9 @@
 
 ## Status
 
-Initial proposal. Agree on the visual direction and styling/UI approach before implementing the complete UI.
+In progress (M2). The token layer is implemented in `frontend/src/styles/tokens.css`, and the first
+two primitives — button and badge — live in `frontend/src/app/shared/ui/`. The application shell and
+the remaining primitives are built as later milestones need them.
 
 ## Principles
 
@@ -19,6 +21,7 @@ Initial proposal. Agree on the visual direction and styling/UI approach before i
 - Spacing: a consistent spacing scale.
 - Shape: border widths and radii.
 - Elevation: shadows where needed.
+- Motion: durations and easing.
 - Breakpoints: responsive layout thresholds.
 
 ## Initial reusable components

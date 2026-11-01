@@ -19,15 +19,17 @@ module.exports = defineConfig([
         'error',
         {
           type: 'attribute',
-          prefix: 'app',
+          prefix: 'wn',
           style: 'camelCase',
         },
       ],
       '@angular-eslint/component-selector': [
         'error',
         {
-          type: 'element',
-          prefix: 'app',
+          // Shared primitives attach to native elements (button[wn-button]),
+          // so both selector shapes are valid for components.
+          type: ['element', 'attribute'],
+          prefix: 'wn',
           style: 'kebab-case',
         },
       ],

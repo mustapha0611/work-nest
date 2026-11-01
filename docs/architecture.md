@@ -59,6 +59,12 @@ Rules:
 - `/api` requests stay relative, so development relies on the proxy and production on serving both
   behind one origin.
 
+## Workflow orchestration
+
+How agent work moves from a request to an approved result — roles, flow, phase states, and
+permissions — is mapped in [orchestration.md](orchestration.md). The executable source of truth is
+`.opencode/skills/orchestration/SKILL.md`.
+
 ## Decisions recorded
 
 - npm workspaces: [ADR 0001](decisions/0001-monorepo-and-npm-workspaces.md)
