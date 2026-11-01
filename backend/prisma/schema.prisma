@@ -1,0 +1,180 @@
+// WorkNest data model.
+//
+// This file is the single source of truth for the database structure. Prisma
+// reads it, generates SQL migrations from it, and generates a typed client that
+// matches it. The SQL is never edited by hand; you change this file and generate
+// a new migration.
+//
+// Conventions used here:
+//   - Primary keys are UUID v7: globally unique, sortable by creation time
+//     (unlike v4), and not guessable from a URL (unlike 1, 2, 3).
+//   - Projects and tasks are never hard-deleted; they carry a status or a
+//     `deletedAt` timestamp instead. See docs/decisions/0005-no-hard-deletes.md.
+//   - Every relation states its onDelete behaviour explicitly, so the effect of
+//     deleting a row is a decision rather than a default.
+
+generator client {
+  // The `prisma-client` generator (not the legacy `prisma-client-js`) emits
+  // plain TypeScript into the repo. Generated output is gitignored and rebuilt
+  // by `prisma generate`.
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  // The connection URL lives in prisma.config.ts, which reads DATABASE_URL from
+  // the environment. Keeping it out of this file means the schema contains no
+  // credentials and can be committed safely.
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+/// A user's standing inside one workspace. Authorisation is still enforced in
+/// the service layer; this enum records the granted role, it does not grant it.
+enum Role {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+/// Projects are archived rather than deleted, so tasks and history survive.
+enum ProjectStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+// ---------------------------------------------------------------------------
+// Models
+// ---------------------------------------------------------------------------
+
+model User {
+  id String @id @default(uuid(7)) @db.Uuid
+
+  /// Stored lowercase and trimmed by the application before every write, which
+  /// is why a plain unique index is enough to make `Alice@x.com` and
+  /// `alice@x.com` the same account.
+  email       String @unique
+  passwordHash String
+  displayName String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  memberships Membership[]
+
+  /// Tasks this user is assigned to. Losing the assignee must not delete the
+  /// task, so the relation is optional and nulls out on user deletion.
+  assignedTasks Task[] @relation("TaskAssignee")
+
+  /// Tasks this user created. A user who authored work items cannot be deleted
+  /// out from under them; the row is blocked until the tasks are reassigned or
+  /// the account is deactivated instead.
+  createdTasks Task[] @relation("TaskCreator")
+}
+
+model Workspace {
+  id String @id @default(uuid(7)) @db.Uuid
+
+  name String
+  /// URL-safe handle, unique across the platform so it can appear in a path.
+  slug String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  memberships Membership[]
+  projects    Project[]
+}
+
+/// Join table between User and Workspace that also carries the role.
+/// The composite unique constraint is what makes a user belong to a workspace
+/// exactly once, with exactly one role.
+model Membership {
+  id String @id @default(uuid(7)) @db.Uuid
+
+  workspaceId String @db.Uuid
+  userId      String @db.Uuid
+  role        Role   @default(MEMBER)
+
+  createdAt DateTime @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+  /// "Which workspaces am I in?" - the query every authenticated request makes.
+  @@index([userId])
+}
+
+model Project {
+  id String @id @default(uuid(7)) @db.Uuid
+
+  workspaceId String @db.Uuid
+  name        String
+  description String?
+
+  status ProjectStatus @default(ACTIVE)
+  /// Set when the project is archived, cleared if it is restored. `status` is
+  /// what queries filter on; this column records when the change happened.
+  archivedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  tasks     Task[]
+
+  /// The project list, filtered by active or archived, scoped to a workspace.
+  @@index([workspaceId, status])
+}
+
+model Task {
+  id String @id @default(uuid(7)) @db.Uuid
+
+  projectId   String  @db.Uuid
+  title       String
+  description String?
+
+  status   TaskStatus   @default(TODO)
+  priority TaskPriority @default(MEDIUM)
+  dueDate  DateTime?
+
+  /// Optional: a task can sit in the backlog unassigned.
+  assigneeId  String? @db.Uuid
+  /// Required: every task records who created it, for attribution and audit.
+  createdById String  @db.Uuid
+
+  /// Soft delete. Every task query must filter `deletedAt: null`; a forgotten
+  /// filter makes deleted tasks reappear.
+  deletedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assignee  User?   @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  createdBy User    @relation("TaskCreator", fields: [createdById], references: [id], onDelete: Restrict)
+
+  /// The board columns: tasks in a project grouped by status.
+  @@index([projectId, status])
+  /// Pagination and "newest first" inside a project.
+  @@index([projectId, createdAt])
+  /// "My tasks" across every project the user can see.
+  @@index([assigneeId])
+}

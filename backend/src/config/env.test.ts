@@ -30,4 +30,14 @@ describe('loadEnv', () => {
   it('rejects an invalid application origin', () => {
     expect(() => loadEnv({ APP_ORIGIN: 'not a url' })).toThrow(/APP_ORIGIN/);
   });
+
+  it('defaults the database URL to the local Docker database', () => {
+    expect(loadEnv({}).DATABASE_URL).toBe(
+      'postgresql://worknest:worknest_dev_only@localhost:5432/worknest?schema=public',
+    );
+  });
+
+  it('rejects a database URL that is not a URL', () => {
+    expect(() => loadEnv({ DATABASE_URL: 'worknest' })).toThrow(/DATABASE_URL/);
+  });
 });
