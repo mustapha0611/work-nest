@@ -29,6 +29,9 @@ permissions:
     resource: "npm run format:check*"
     effect: allow
   - action: shell
+    resource: "npm run db:generate*"
+    effect: allow
+  - action: shell
     resource: "npm test*"
     effect: allow
   - action: shell
@@ -67,7 +70,9 @@ never modify files.
   missing script may produce no output, but the attempt must still be shown. Never report a SKIP as
   `PASS`.
 - If a command is denied or times out, report `FAIL` with the reason.
-- Do not edit files, install packages, run migrations, or fix the code yourself.
+- Do not edit files, install packages, or fix the code yourself. `npm run test:db` applies committed
+  migrations to the disposable `worknest_test` database and is allowed; creating or applying
+  migrations against the development database is not.
 - Stop at the first failing step and report its full error output; later steps depend on it.
 
 ## Report format

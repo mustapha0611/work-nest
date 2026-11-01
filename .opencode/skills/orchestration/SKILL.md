@@ -126,16 +126,18 @@ npm run build           # backend tsc build, then frontend ng build
 npm run format:check    # prettier check, no writes
 ```
 
-Once Prisma and the database are in use:
+When the change touches the schema, migrations, or data access, add:
 
 ```bash
-npx prisma validate
-npx prisma migrate status
-docker compose ps
+npm run db:generate -w backend   # regenerates the client and validates the schema
+npm run test:db -w backend       # applies migrations to worknest_test, then runs *.db.test.ts
 ```
 
-Prisma is not yet a backend dependency; until it is, these are SKIPs with that reason. A command
-that does not exist yet is never a PASS.
+`npm test` never touches a database by design, so it cannot validate a schema change on its own. A
+data-phase report without `test:db` evidence is incomplete, not a PASS. `test:db` needs PostgreSQL
+from `docker compose up -d`; if the container is down, say so and report a SKIP with that reason.
+
+A command that does not exist yet is never a PASS.
 
 ## Iron rules
 
