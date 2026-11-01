@@ -75,6 +75,9 @@ The developer should be able to explain and modify:
 
 ## Milestones
 
+The roadmap in [`README.md`](README.md#roadmap) is authoritative for milestone numbers and order.
+The list below records the original planning intent.
+
 1. Inspect repo, existing instructions, tools, and runtime versions. Propose structure and decisions; do not install or scaffold before approval.
 2. Agree on monorepo/package-manager approach, Angular styling/UI approach, testing tools, and initial auth strategy.
 3. Create minimal runnable frontend/backend with a health endpoint and environment validation.
