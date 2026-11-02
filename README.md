@@ -3,8 +3,8 @@
 A learning-first, production-minded team project and task management platform.
 
 The repository currently contains the application skeleton, the database schema, and the
-authentication API: an Angular frontend, an Express API, shared tooling, and a local PostgreSQL
-instance. Workspace, project and task features arrive in later milestones.
+authentication flow — API and login screen. Workspace, project and task features arrive in later
+milestones.
 
 ## Stack
 
@@ -68,20 +68,24 @@ Run from the repository root.
 The Angular dev server proxies `/api` to `http://localhost:3000` (`frontend/proxy.conf.json`), so
 the browser only ever talks to one origin during development.
 
-Open `http://localhost:4200` — the landing screen reports whether the API is reachable.
+Open `http://localhost:4200` — an anonymous visitor is redirected to the login screen. The diagnostics
+page at `/status` reports whether the API is reachable.
 
-## Trying authentication
+## Signing in
 
-M4 is API-only, so there is no login screen yet. Seed the development account and use the endpoints
-directly:
+Seed the development account:
 
 ```powershell
 npm run db:seed -w backend
 ```
 
 That creates `demo@worknest.local` with the password `worknest-demo` in the development database
-only; the script refuses to run with `NODE_ENV=production`. Sign-in sets an `HttpOnly` session cookie,
-so a browser or a cookie-aware client must keep it between requests.
+only; the script refuses to run with `NODE_ENV=production`.
+
+Sign in at `http://localhost:4200/login`. The app calls `GET /api/auth/me` on startup to restore an
+existing session, and login sets an `HttpOnly` session cookie that JavaScript cannot read. After
+signing in you land on a temporary placeholder screen with a sign-out button; the workspace shell
+arrives in M5.
 
 The endpoints, status codes and cookie behaviour are documented in
 [API conventions](docs/api-conventions.md#authentication).
@@ -100,8 +104,11 @@ backend/
     modules/health/     Health route and controller
     routes/             Mounts module routers under /api
 frontend/
-  src/app/core/         App-wide services (API access)
-  src/app/              Root component and configuration
+  src/app/core/         App-wide auth state, guards and HTTP services
+  src/app/features/     Login, signed-in placeholder and API status screens
+  src/app/shared/ui/    Button, badge and text-field primitives
+  src/app/app.routes.ts Route table (lazy feature routes)
+  src/app/              Root shell and application configuration
   proxy.conf.json       Dev-server proxy to the API
 docs/                   Architecture, API conventions, design system, ADRs
 ```
@@ -116,13 +123,13 @@ docs/                   Architecture, API conventions, design system, ADRs
 
 ## Roadmap
 
-| Milestone | Scope                                          |
-| --------- | ---------------------------------------------- |
-| M0        | Repository, tooling, and local database        |
-| M1        | Angular + Express skeleton with a health check |
-| M2        | Design tokens and shared UI primitives         |
-| M3        | Prisma schema and migrations                   |
-| M4        | Authentication with database-backed sessions   |
-| M5        | Workspaces, membership, and roles              |
-| M6        | Projects                                       |
-| M7        | Tasks                                          |
+| Milestone | Scope                                                       |
+| --------- | ----------------------------------------------------------- |
+| M0        | Repository, tooling, and local database                     |
+| M1        | Angular + Express skeleton with a health check              |
+| M2        | Design tokens and shared UI primitives                      |
+| M3        | Prisma schema and migrations                                |
+| M4        | Authentication with database-backed sessions and a login UI |
+| M5        | Workspaces, membership, and roles                           |
+| M6        | Projects                                                    |
+| M7        | Tasks                                                       |

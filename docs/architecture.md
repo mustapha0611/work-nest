@@ -2,11 +2,11 @@
 
 ## Current status
 
-M4 authentication API implemented. Users can sign in with email and password, receive a
-database-backed session cookie, read their own profile, and sign out. No product endpoints (workspaces,
-projects, tasks) exist yet, and there is no Angular login screen — M4 is API-only. There is also no
-registration: users will join through workspace invitations in M5, so the only ways to get an account
-today are the development seed and direct database access.
+M4 authentication flow implemented across both workspaces. Users sign in with email and password on
+the Angular login screen, receive a database-backed session cookie, see a signed-in placeholder
+screen, and can sign out. No product endpoints (workspaces, projects, tasks) exist yet, and there is
+no registration: users will join through workspace invitations in M5, so the only ways to get an
+account today are the development seed and direct database access.
 
 ## Authentication boundary
 
@@ -117,22 +117,33 @@ the schema and the migrations agree with each other.
 
 ```text
 frontend/src/
-  app/app.ts             Root component (shell)
-  app/app.config.ts      Application providers
-  app/app.routes.ts      Route table (empty in M1)
-  app/core/              App-wide services; HTTP access lives here
-  styles.css             Global styles (design tokens arrive in M2)
+  app/app.ts                 Root shell: router outlet only
+  app/app.config.ts          Providers, including the session initializer
+  app/app.routes.ts          Lazy routes, guarded by auth/guest guards
+  app/core/auth/             Session state, HTTP calls, guards, error mapping
+  app/core/health/           Health-check HTTP service
+  app/features/auth/         Login page
+  app/features/home/         Temporary signed-in screen
+  app/features/system-status/ API diagnostics page
+  app/shared/ui/             Button, badge, text-field primitives
+  styles.css                 Global reset and focus behaviour
+  styles/tokens.css          Design tokens
 ```
 
 Rules:
 
-- Feature-first organization as features appear; `core/` for app-wide concerns, `shared/ui/` for
-  reusable primitives.
+- Feature-first organization; `core/` for app-wide concerns, `shared/ui/` for reusable primitives.
 - Components never call `HttpClient` directly. A service owns the endpoint, the response envelope,
   and the mapping to a domain model.
 - Signal state is kept small and explicit; templates project it with `@if`/`@else if`.
 - `/api` requests stay relative, so development relies on the proxy and production on serving both
   behind one origin.
+- `AuthService` holds the one source of truth for the signed-in user. It exposes read-only signals;
+  only login, logout and the startup session check may change them.
+- `provideAppInitializer` resolves `GET /api/auth/me` before the first navigation, so `authGuard` and
+  `guestGuard` can be synchronous. A failed check becomes "anonymous" rather than blocking bootstrap.
+- The browser never reads the session token. The cookie is `HttpOnly`; `/me` is how the UI learns who
+  the user is.
 
 ## Workflow orchestration
 
@@ -153,6 +164,5 @@ permissions — is mapped in [orchestration.md](orchestration.md). The executabl
 ## Decisions still open
 
 - Angular styling and component strategy beyond plain CSS tokens.
-- Login and session UI in Angular (M4 is API-only).
 - CSRF strategy if the API is ever served cross-origin from the app (see ADR 0007).
 - Deployment target and environment strategy, including `TRUST_PROXY` and the shared rate-limit store.

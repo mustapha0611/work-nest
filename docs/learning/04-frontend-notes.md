@@ -110,6 +110,50 @@ getHealth(): Observable<ApiHealth> {
 
 This is the same instinct as keeping helper functions module-private, applied to API contracts.
 
+## Authentication is app state, not a page
+
+The login screen is a feature, but "who is signed in" belongs to the whole application. That is why
+`core/auth/auth.service.ts` owns it:
+
+```ts
+private readonly statusState = signal<AuthStatus>('unknown');
+readonly isAuthenticated = computed(() => this.statusState() === 'authenticated');
+```
+
+`unknown` is a real state, not a null. It means "the startup check has not answered yet". Keeping it
+distinct from `anonymous` is what stops a signed-in user seeing the login form flash while
+`GET /api/auth/me` is in flight.
+
+The startup check is an application initializer:
+
+```ts
+provideAppInitializer(() => firstValueFrom(inject(AuthService).loadSession()));
+```
+
+Angular waits for that observable before the first navigation, which lets the guards be synchronous:
+
+```ts
+return auth.isAuthenticated() ? true : router.createUrlTree(['/login']);
+```
+
+Two rules fall out of the cookie design:
+
+- The browser cannot read the token, because the cookie is `HttpOnly`. `/me` is how the UI learns who
+  the user is; there is no "current user" object in JavaScript storage.
+- The client never decides whether a request is allowed. Hiding a route or a button is navigation
+  convenience; the API still checks the session on every request.
+
+Login errors are mapped from status and stable codes, not from server prose:
+
+```ts
+if (error.status === 429) return 'Too many sign-in attempts. …';
+if (error.status === 401) return 'Email or password is incorrect.';
+```
+
+The 401 message is intentionally identical for an unknown email, a wrong password and a deactivated
+account, matching the API. A more helpful client message would undo the server's anti-enumeration
+work.
+
 ## Subscriptions and lifecycle
 
 ```ts
@@ -159,11 +203,10 @@ then renders.
 
 | Gap                                | Reason                                                                                 |
 | ---------------------------------- | -------------------------------------------------------------------------------------- |
-| No routing yet                     | One screen; routes arrive with the first real feature                                  |
-| No design tokens                   | M2 owns the token layer and shared primitives                                          |
-| No `resource()` / `httpResource()` | Explicit signals are easier to reason about first; revisit once there are more screens |
-| No global HTTP error interceptor   | One endpoint so far; add it when error handling repeats                                |
+| No protected product routes yet    | Authentication guards exist; workspace/project routes arrive with M5                   |
+| No global HTTP error interceptor   | Error mapping is still local to auth; add an interceptor when it repeats               |
 | No optimistic UI                   | Nothing is written yet                                                                 |
+| No `resource()` / `httpResource()` | Explicit signals are easier to reason about first; revisit once there are more screens |
 
 ## Related
 
