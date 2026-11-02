@@ -1,7 +1,8 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { App } from './app';
+import { provideRouter } from '@angular/router';
+import { SystemStatusPage } from './system-status-page';
 
 const HEALTH_PAYLOAD = {
   data: {
@@ -11,13 +12,13 @@ const HEALTH_PAYLOAD = {
   },
 };
 
-describe('App', () => {
+describe('SystemStatusPage', () => {
   let httpMock: HttpTestingController;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [App],
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      imports: [SystemStatusPage],
+      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
 
     httpMock = TestBed.inject(HttpTestingController);
@@ -27,14 +28,14 @@ describe('App', () => {
     httpMock.verify();
   });
 
-  function createApp() {
-    const fixture = TestBed.createComponent(App);
+  function createPage() {
+    const fixture = TestBed.createComponent(SystemStatusPage);
     fixture.detectChanges();
     return fixture;
   }
 
   it('shows a loading state before the API answers', () => {
-    const fixture = createApp();
+    const fixture = createPage();
 
     expect(fixture.nativeElement.textContent).toContain('Checking the API');
 
@@ -42,7 +43,7 @@ describe('App', () => {
   });
 
   it('renders the API status once the request succeeds', async () => {
-    const fixture = createApp();
+    const fixture = createPage();
 
     httpMock.expectOne('/api/health').flush(HEALTH_PAYLOAD);
     await fixture.whenStable();
@@ -54,7 +55,7 @@ describe('App', () => {
   });
 
   it('explains an unreachable API', async () => {
-    const fixture = createApp();
+    const fixture = createPage();
 
     httpMock.expectOne('/api/health').error(new ProgressEvent('error'));
     await fixture.whenStable();
@@ -64,7 +65,7 @@ describe('App', () => {
   });
 
   it('reports a server error without leaking details', async () => {
-    const fixture = createApp();
+    const fixture = createPage();
 
     httpMock
       .expectOne('/api/health')
