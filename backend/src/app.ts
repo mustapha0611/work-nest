@@ -1,10 +1,11 @@
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { type Express } from 'express';
 import helmet from 'helmet';
 import type { Env } from './config/env.js';
 import type { Logger } from './lib/logger.js';
 import { createErrorHandler, notFoundHandler } from './middleware/error-handler.js';
-import { apiRouter } from './routes/index.js';
+import { createApiRouter } from './routes/index.js';
 
 export interface AppDependencies {
   env: Env;
@@ -38,8 +39,11 @@ export function createApp({ env, logger }: AppDependencies): Express {
   );
   app.use(express.json({ limit: '100kb' }));
   app.use(express.urlencoded({ extended: false, limit: '100kb' }));
+  // Sessions travel in a cookie. Parsing is the only thing this adds: none of
+  // the cookie values are trusted until `requireAuth` has looked them up.
+  app.use(cookieParser());
 
-  app.use('/api', apiRouter);
+  app.use('/api', createApiRouter(env));
 
   // Order matters: unmatched routes first, then the central error handler.
   app.use(notFoundHandler);
