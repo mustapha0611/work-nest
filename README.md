@@ -2,9 +2,9 @@
 
 A learning-first, production-minded team project and task management platform.
 
-The repository currently contains the application skeleton: an Angular frontend, an Express API,
-shared tooling, and a local PostgreSQL instance. Product features (authentication, workspaces,
-projects, tasks) arrive in later milestones.
+The repository currently contains the application skeleton, the database schema, and the
+authentication API: an Angular frontend, an Express API, shared tooling, and a local PostgreSQL
+instance. Workspace, project and task features arrive in later milestones.
 
 ## Stack
 
@@ -70,6 +70,22 @@ the browser only ever talks to one origin during development.
 
 Open `http://localhost:4200` — the landing screen reports whether the API is reachable.
 
+## Trying authentication
+
+M4 is API-only, so there is no login screen yet. Seed the development account and use the endpoints
+directly:
+
+```powershell
+npm run db:seed -w backend
+```
+
+That creates `demo@worknest.local` with the password `worknest-demo` in the development database
+only; the script refuses to run with `NODE_ENV=production`. Sign-in sets an `HttpOnly` session cookie,
+so a browser or a cookie-aware client must keep it between requests.
+
+The endpoints, status codes and cookie behaviour are documented in
+[API conventions](docs/api-conventions.md#authentication).
+
 ## Project structure
 
 ```text
@@ -78,8 +94,9 @@ backend/
     app.ts              Express app factory (no port binding)
     server.ts           Process lifecycle: listen, signals, shutdown
     config/env.ts       Environment validation
-    lib/                Small shared helpers (logger, HTTP error)
-    middleware/         Error handling and 404 fallback
+    lib/                Shared helpers (logger, HTTP error, passwords, session tokens)
+    middleware/         Error handling, 404 fallback, requireAuth, rate limiters
+    modules/auth/       Login, logout, me, and session create/resolve/revoke
     modules/health/     Health route and controller
     routes/             Mounts module routers under /api
 frontend/
