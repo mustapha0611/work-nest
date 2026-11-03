@@ -39,5 +39,5 @@ these rules:
 
 ## Scope
 
-M1 (toolchain skeleton) as of 2026-10-29. Notes are added per milestone rather than written
-up front; anything not yet implemented is described as a gap, not as a feature.
+M4 (authentication API and login UI) as of 2026-11-02. Notes are added per milestone rather than
+written up front; anything not yet implemented is described as a gap, not as a feature.

@@ -1,0 +1,64 @@
+:host {
+  display: block;
+}
+
+.field {
+  display: grid;
+  gap: var(--wn-space-2);
+}
+
+.field__label {
+  color: var(--wn-color-text);
+  font-size: var(--wn-text-sm);
+  font-weight: var(--wn-font-medium);
+}
+
+.field__required {
+  color: var(--wn-color-danger-fg);
+}
+
+.field__input {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: var(--wn-space-2) var(--wn-space-3);
+  border: var(--wn-border-width) solid var(--wn-color-border-strong);
+  border-radius: var(--wn-radius-md);
+  background: var(--wn-color-surface);
+  color: var(--wn-color-text);
+  font: inherit;
+  transition:
+    border-color var(--wn-duration-fast) var(--wn-ease-standard),
+    background-color var(--wn-duration-fast) var(--wn-ease-standard);
+}
+
+.field__input:hover:not(:disabled) {
+  border-color: var(--wn-color-text-muted);
+}
+
+.field__input:disabled {
+  background: var(--wn-color-surface-muted);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* The global `:focus-visible` rule draws the ring; this keeps the border in
+   step so the field still reads as a single control. */
+.field__input:focus-visible {
+  border-color: var(--wn-color-primary);
+}
+
+.field__input[aria-invalid='true'] {
+  border-color: var(--wn-color-danger);
+}
+
+.field__hint {
+  color: var(--wn-color-text-muted);
+  font-size: var(--wn-text-xs);
+  line-height: var(--wn-leading-sm);
+}
+
+.field__error {
+  color: var(--wn-color-danger-fg);
+  font-size: var(--wn-text-xs);
+  line-height: var(--wn-leading-sm);
+}

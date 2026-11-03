@@ -1,0 +1,32 @@
+<main class="account">
+  <header class="account__header">
+    <p class="account__wordmark">WorkNest</p>
+
+    @if (user(); as currentUser) {
+      <div class="account__identity">
+        <span wn-badge tone="success">Signed in</span>
+        <p class="account__name">{{ currentUser.displayName }}</p>
+        <p class="account__email">{{ currentUser.email }}</p>
+      </div>
+    }
+
+    <button wn-button variant="secondary" (click)="signOut()" [disabled]="signingOut()">
+      {{ signingOut() ? 'Signing out…' : 'Sign out' }}
+    </button>
+  </header>
+
+  <section class="account__panel">
+    <p class="eyebrow">Session active</p>
+    <h1>You're signed in.</h1>
+    <p class="lede">
+      The authentication slice is complete. Workspaces, projects and tasks arrive in the next
+      milestones.
+    </p>
+
+    @if (errorMessage(); as message) {
+      <p class="account__error" role="alert">{{ message }}</p>
+    }
+
+    <p class="account__links"><a routerLink="/status">Check API status</a></p>
+  </section>
+</main>

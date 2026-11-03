@@ -1,0 +1,149 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+  background: var(--wn-color-bg);
+}
+
+.auth {
+  display: grid;
+  min-height: 100dvh;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+}
+
+/* The brand panel is decorative. All of its text is repeated in the form
+   heading, so hiding it on small screens loses no information. */
+.auth__brand {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--wn-space-8);
+  overflow: hidden;
+  padding: clamp(var(--wn-space-8), 5vw, var(--wn-space-16));
+  background:
+    radial-gradient(circle at 12% 18%, rgb(188 108 37 / 30%), transparent 42%),
+    radial-gradient(circle at 82% 78%, rgb(127 189 178 / 22%), transparent 45%),
+    var(--wn-color-primary);
+  color: var(--wn-color-on-primary);
+}
+
+.auth__wordmark {
+  font-size: var(--wn-text-lg);
+  font-weight: var(--wn-font-bold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.auth__pitch {
+  max-width: 26rem;
+}
+
+.auth__headline {
+  margin-bottom: var(--wn-space-4);
+  font-size: clamp(var(--wn-text-2xl), 4vw, var(--wn-text-3xl));
+  font-weight: var(--wn-font-bold);
+  line-height: var(--wn-leading-3xl);
+}
+
+.auth__description {
+  color: rgb(255 255 255 / 88%);
+  font-size: var(--wn-text-lg);
+  line-height: var(--wn-leading-lg);
+}
+
+.auth__meta {
+  color: rgb(255 255 255 / 80%);
+  font-size: var(--wn-text-sm);
+}
+
+.auth__panel {
+  display: grid;
+  place-items: center;
+  padding: var(--wn-space-8) var(--wn-space-6);
+}
+
+.auth__card {
+  width: 100%;
+  max-width: 26rem;
+}
+
+.eyebrow {
+  margin-bottom: var(--wn-space-2);
+  color: var(--wn-color-text-muted);
+  font-size: var(--wn-text-xs);
+  font-weight: var(--wn-font-semibold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin-bottom: var(--wn-space-3);
+  font-size: var(--wn-text-2xl);
+  line-height: var(--wn-leading-2xl);
+}
+
+.lede {
+  margin-bottom: var(--wn-space-8);
+  color: var(--wn-color-text-muted);
+}
+
+.form {
+  display: grid;
+  gap: var(--wn-space-5);
+}
+
+.form__error {
+  padding: var(--wn-space-3) var(--wn-space-4);
+  border: var(--wn-border-width) solid var(--wn-color-danger);
+  border-radius: var(--wn-radius-md);
+  background: var(--wn-color-danger-bg);
+  color: var(--wn-color-danger-fg);
+  font-size: var(--wn-text-sm);
+  line-height: var(--wn-leading-sm);
+}
+
+.form__submit {
+  width: 100%;
+}
+
+.auth__footer {
+  margin-top: var(--wn-space-6);
+  color: var(--wn-color-text-muted);
+  font-size: var(--wn-text-sm);
+  text-align: center;
+}
+
+.auth__footer a {
+  color: var(--wn-color-primary);
+  font-weight: var(--wn-font-medium);
+}
+
+.auth__footer a:hover {
+  color: var(--wn-color-primary-hover);
+}
+
+@media (max-width: 900px) {
+  .auth {
+    grid-template-columns: 1fr;
+  }
+
+  .auth__brand {
+    gap: var(--wn-space-4);
+    padding: var(--wn-space-6);
+  }
+
+  .auth__headline {
+    margin-bottom: 0;
+    font-size: var(--wn-text-xl);
+    line-height: var(--wn-leading-xl);
+  }
+
+  .auth__description,
+  .auth__meta {
+    display: none;
+  }
+
+  .auth__panel {
+    align-items: start;
+    padding-top: var(--wn-space-8);
+  }
+}
