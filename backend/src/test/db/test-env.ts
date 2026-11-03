@@ -22,5 +22,31 @@ export function resolveTestDatabaseUrl(): string {
     );
   }
 
+  assertIsTestDatabase(url);
+
   return url;
+}
+
+/**
+ * Refuses to run the suite against anything but a throwaway database.
+ *
+ * The tests truncate every table. If a configuration mistake pointed them at
+ * the development database, they would erase real local work without any
+ * warning — so the guard fails loudly instead. Only the database name is
+ * reported; the URL carries credentials and must not reach a log.
+ */
+export function assertIsTestDatabase(url: string): void {
+  let databaseName: string;
+
+  try {
+    databaseName = new URL(url).pathname.replace(/^\//, '');
+  } catch {
+    throw new Error('The database URL for tests is not a valid URL.');
+  }
+
+  if (!databaseName.endsWith('_test')) {
+    throw new Error(
+      `Refusing to run database tests against "${databaseName}": the database name must end with "_test".`,
+    );
+  }
 }

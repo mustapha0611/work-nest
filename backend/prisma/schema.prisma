@@ -76,7 +76,13 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  /// Set when the account is deactivated; NULL means active (ADR 0006).
+  /// A nullable timestamp answers "is it disabled" and "since when" with one
+  /// column, which an `isActive` boolean cannot.
+  deactivatedAt DateTime?
+
   memberships Membership[]
+  sessions    Session[]
 
   /// Tasks this user is assigned to. Losing the assignee must not delete the
   /// task, so the relation is optional and nulls out on user deletion.
@@ -177,4 +183,29 @@ model Task {
   @@index([projectId, createdAt])
   /// "My tasks" across every project the user can see.
   @@index([assigneeId])
+}
+
+/// A signed-in browser.
+///
+/// The cookie carries a random token; this row stores only its SHA-256 hash, so
+/// a leaked database or backup cannot be replayed as a live session. See
+/// ADR 0007.
+model Session {
+  id String @id @default(uuid(7)) @db.Uuid
+
+  /// SHA-256 of the token in hex. Unique, because the lookup goes through this
+  /// column and two sessions must never collide on it.
+  tokenHash String @unique
+
+  userId String @db.Uuid
+
+  /// Absolute expiry. There is no sliding renewal in M4: the row is the only
+  /// clock the server trusts, so this is what makes a session dead.
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// "Sign out everywhere" and the cascade from a user row.
+  @@index([userId])
 }

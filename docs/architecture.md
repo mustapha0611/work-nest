@@ -2,9 +2,31 @@
 
 ## Current status
 
-M3 schema implemented: the database models for users, workspaces, memberships, projects and tasks
-exist with one applied migration, and a Prisma client is wired into the backend. No authentication or
-product endpoints exist yet, so nothing in the running API reads or writes those tables.
+M4 authentication API implemented. Users can sign in with email and password, receive a
+database-backed session cookie, read their own profile, and sign out. No product endpoints (workspaces,
+projects, tasks) exist yet, and there is no Angular login screen — M4 is API-only. There is also no
+registration: users will join through workspace invitations in M5, so the only ways to get an account
+today are the development seed and direct database access.
+
+## Authentication boundary
+
+- A session is an opaque 32-byte token in an `HttpOnly` cookie. The database stores only its SHA-256
+  hash, so a leaked database or backup cannot be replayed as a live session
+  ([ADR 0007](decisions/0007-sessions.md)).
+- `requireAuth` is the single gate for protected routes. It resolves the cookie to a user, rejects
+  expired sessions, and rejects deactivated accounts. Handlers read `req.user`; they never parse the
+  cookie themselves.
+- The middleware answers "who are you" (401). Authorization — "may this user touch this resource?" —
+  belongs to the feature and answers 403. M4 has no workspace resources yet, so 403 is not exercised.
+- Passwords use argon2id. Sessions use SHA-256 for the reason above: high-entropy secrets do not need a
+  deliberately slow hash, and adding one to every authenticated request would tax the whole API.
+- Login failures are identical for an unknown email, a wrong password and a deactivated account, and
+  the unknown-email path spends the same verification time as a real check. The endpoint does not
+  reveal which accounts exist.
+- Sign-in has two in-memory rate limits: per address + email (5 per 15 minutes) and per address (20 per
+  15 minutes). The store is per process; moving to multiple API instances requires a shared store.
+- Session lifetime is absolute (7 days by default) with no sliding renewal. The database row is the only
+  clock the server trusts.
 
 ## Boundaries
 
@@ -24,11 +46,13 @@ backend/
   src/app.ts             createApp() builds the Express app; no port binding
   src/server.ts          Loads config, listens, handles signals and shutdown
   src/config/env.ts      Zod-validated environment contract
-  src/lib/               Logger, HttpError, Prisma client
-  src/middleware/        Central error handler, 404 fallback
+  src/lib/               Logger, HttpError, Prisma client, password hashing, session tokens
+  src/middleware/        Error handler, 404 fallback, requireAuth, rate limiters
+  src/modules/auth/      Login/logout/me, credential checks, session create/resolve/revoke
   src/modules/<domain>/  Route + controller (and services/data access when needed)
-  src/routes/index.ts    Mounts module routers under /api
+  src/routes/index.ts    createApiRouter(env) mounts module routers under /api
   src/test/db/           Integration tests that need a live PostgreSQL
+  prisma/seed.ts         Development-only demo account; refuses to run in production
 ```
 
 Rules:
@@ -41,22 +65,32 @@ Rules:
   `{ error: { code, message } }`; unexpected errors become a generic `500`.
 - Dependencies are injected into `createApp()` rather than read from module-level singletons, so
   tests can supply their own configuration.
-- Security headers come from `helmet`; CORS allows only `APP_ORIGIN`, with credentials enabled for
-  the future session cookie.
+- Security headers come from `helmet`; CORS allows only `APP_ORIGIN`, with credentials enabled so the
+  browser sends the session cookie.
 - `lib/prisma.ts` exposes `createPrismaClient(url)` plus a lazy process-wide client. Services call
   `getPrismaClient()`; `server.ts` disconnects it during shutdown.
+- Environment-dependent behavior (cookie name, session lifetime, secure cookies) arrives through
+  `Env`, so the same code is testable without changing global state.
 
 ## Data model
 
 | Model        | Purpose                              | Key constraints                                                         |
 | ------------ | ------------------------------------ | ----------------------------------------------------------------------- |
-| `User`       | Account and author of tasks          | `email` unique                                                          |
+| `User`       | Account and author of tasks          | `email` unique; `deactivatedAt` null means active                       |
+| `Session`    | One signed-in browser                | `tokenHash` unique; index `(userId)`; cascades from `User`              |
 | `Workspace`  | Tenant boundary                      | `slug` unique                                                           |
 | `Membership` | User's role inside a workspace       | unique `(workspaceId, userId)`, index `(userId)`                        |
 | `Project`    | Grouping of tasks inside a workspace | index `(workspaceId, status)`                                           |
 | `Task`       | Unit of work inside a project        | indexes `(projectId, status)`, `(projectId, createdAt)`, `(assigneeId)` |
 
-- Primary keys are UUID v7, so ids sort by creation time and cannot be guessed from a URL.
+- Primary keys are UUID v7, so ids sort by creation time and cannot be guessed from a URL. Session
+  tokens are separate random values; a primary key is never used as a credential.
+- `Session.tokenHash` stores the SHA-256 of the cookie token, never the token itself. A session is
+  deleted on sign-out and cascades when its user row is removed.
+- `User.deactivatedAt` is checked by `requireAuth` on every request, so deactivation takes effect even
+  if a session row still exists.
+- Expired session rows are not swept automatically in M4. They are small and ignored by lookups; a
+  cleanup job becomes worthwhile once the table grows.
 - **Projects are archived, tasks are soft-deleted**; neither has a delete path
   ([ADR 0005](decisions/0005-no-hard-deletes.md)). Every task query must filter `deletedAt: null`.
 - Relation deletion behaviour is explicit: workspace cascades to memberships and projects, project
@@ -72,6 +106,7 @@ npm run dev:backend            # expects PostgreSQL from docker compose
 npm run db:generate -w backend # regenerate the typed client after a schema change
 npm run db:migrate -w backend  # create and apply a migration during development
 npm run db:deploy -w backend   # apply committed migrations, no schema authoring
+npm run db:seed -w backend     # create or refresh demo@worknest.local (development only)
 npm run test:db -w backend     # migrate worknest_test, then run *.db.test.ts
 ```
 
@@ -113,9 +148,11 @@ permissions — is mapped in [orchestration.md](orchestration.md). The executabl
 - One branch per concern: [ADR 0004](decisions/0004-branch-per-concern.md)
 - Projects and tasks are never hard-deleted: [ADR 0005](decisions/0005-no-hard-deletes.md)
 - Accounts are deactivated, not deleted: [ADR 0006](decisions/0006-user-deactivation.md)
+- Database-backed opaque session tokens: [ADR 0007](decisions/0007-sessions.md)
 
 ## Decisions still open
 
 - Angular styling and component strategy beyond plain CSS tokens.
-- Authentication and session strategy.
-- Deployment target and environment strategy.
+- Login and session UI in Angular (M4 is API-only).
+- CSRF strategy if the API is ever served cross-origin from the app (see ADR 0007).
+- Deployment target and environment strategy, including `TRUST_PROXY` and the shared rate-limit store.

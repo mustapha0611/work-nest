@@ -13,6 +13,10 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().min(1).max(65535).default(3000),
   LOG_LEVEL: z.enum(LOG_LEVELS).default('info'),
   APP_ORIGIN: z.url().default('http://localhost:4200'),
+  /** Name of the cookie carrying the session token. */
+  SESSION_COOKIE_NAME: z.string().min(1).default('wn_session'),
+  /** Absolute session lifetime. The database row is the only clock trusted. */
+  SESSION_TTL_DAYS: z.coerce.number().int().min(1).max(365).default(7),
   /**
    * PostgreSQL connection string. The default matches the Docker Compose
    * service and the local-only credentials in `.env.example`, so a fresh clone
